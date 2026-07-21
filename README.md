@@ -1,6 +1,6 @@
 # Equilotl
 
-The Equicord Installer allows you to install [Equicord, the cutest Discord Desktop client mod](https://github.com/Equicord/Equicord)
+The Equicord Installer allows you to install [Equicord, the cutest Discord Desktop client mod](https://github.com/ak1raww/Solarcord)
 
 ![image](https://i.imgur.com/oHN41ss.png)
 

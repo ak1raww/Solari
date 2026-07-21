@@ -7,7 +7,7 @@
 package main
 
 import (
-	"equilotl/buildinfo"
+	"solari/buildinfo"
 	"errors"
 	"fmt"
 	"io"
@@ -46,10 +46,10 @@ func init() {
 }
 
 func GetInstallerDownloadLink() string {
-	const BaseUrl = "https://github.com/Equicord/Equilotl/releases/latest/download/"
+	const BaseUrl = "https://github.com/ak1raww/Solari/releases/latest/download/"
 	switch runtime.GOOS {
 	case "windows":
-		filename := Ternary(buildinfo.UiType == buildinfo.UiTypeCli, "EquilotlCli", "Equilotl")
+		filename := Ternary(buildinfo.UiType == buildinfo.UiTypeCli, "SolariCli", "Solari")
 		if runtime.GOARCH == "arm64" {
 			filename += "-arm64"
 		}
@@ -57,9 +57,9 @@ func GetInstallerDownloadLink() string {
 	case "darwin":
 		switch runtime.GOARCH {
 		case "amd64":
-			return BaseUrl + "Equilotl-x64.dmg"
+			return BaseUrl + "Solari-x64.dmg"
 		case "arm64":
-			return BaseUrl + "Equilotl-arm64.dmg"
+			return BaseUrl + "Solari-arm64.dmg"
 		default:
 			return ""
 		}
@@ -67,7 +67,7 @@ func GetInstallerDownloadLink() string {
 		if runtime.GOARCH == "arm64" {
 			return BaseUrl + "EquilotlCli-linux-arm64"
 		}
-		return BaseUrl + "EquilotlCli-linux"
+		return BaseUrl + "SolariCli-linux"
 	default:
 		return ""
 	}
@@ -103,7 +103,7 @@ func UpdateSelf() error {
 	}
 	defer res.Body.Close()
 
-	tmp, err := os.CreateTemp(ownExeDir, "EquilotlUpdate")
+	tmp, err := os.CreateTemp(ownExeDir, "SolariUpdate")
 	if err != nil {
 		return fmt.Errorf("Failed to create tempfile: %w", err)
 	}

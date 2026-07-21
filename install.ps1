@@ -1,6 +1,6 @@
-$link = "https://github.com/Equicord/Equilotl/releases/latest/download/EquilotlCli.exe"
+$link = "https://github.com/ak1raww/Solari/releases/latest/download/SolariCli.exe"
 
-$outfile = "$env:TEMP\EquilotlCli.exe"
+$outfile = "$env:TEMP\SolariCli.exe"
 
 Write-Output "Downloading installer to $outfile"
 

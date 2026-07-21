@@ -23,7 +23,7 @@ case "$(uname -m)" in
   *) binary="EquilotlCli-Linux" ;;
 esac
 
-curl -sS "https://github.com/Equicord/Equilotl/releases/latest/download/$binary" \
+curl -sS "https://github.com/ak1raww/Solari/releases/latest/download/$binary" \
   --output "$outfile" \
   --location \
   --fail
