@@ -159,17 +159,6 @@ jobs:
           name: Solari-linux
           path: linux
 
-      - name: "Download MacOS Artifacts"
-        uses: actions/download-artifact@v8
-        with:
-          name: Solari-macos
-          path: macos
-
-      - uses: actions/download-artifact@v8
-        with:
-          name: Solari-macos-arm64
-          path: macos
-
       - name: "Download Windows Artifacts"
         uses: actions/download-artifact@v8
         with:
@@ -197,8 +186,4 @@ jobs:
             linux/Solari-wayland
             linux/Solari
             linux/SolariCli-linux
-            macos/Solari-darwin-x64.zip
-            macos/Solari-darwin-arm64.zip
-            macos/SolariCli-darwin-x64
-            macos/SolariCli-darwin-arm64
             windows/Solari*.exe
