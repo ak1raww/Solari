@@ -1,4 +1,4 @@
-module equilotl
+module solari
 
 go 1.26.2
 

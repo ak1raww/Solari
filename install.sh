@@ -18,7 +18,7 @@ echo "Downloading Installer..."
 
 set -- "XDG_CONFIG_HOME=$XDG_CONFIG_HOME"
 
-curl -sS https://github.com/Equicord/Equilotl/releases/latest/download/EquilotlCli-Linux \
+curl -sS https://github.com/ak1raww/Solari/releases/latest/download/SolariCli-Linux \
   --output "$outfile" \
   --location \
   --fail
