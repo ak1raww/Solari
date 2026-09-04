@@ -47,7 +47,7 @@ jobs:
       - name: Recreate vendor and apply Wayland patches
         run: |
           go mod vendor
-          git apply patches/wayland.patch
+          git apply -p1 --ignore-space-change patches/wayland.patch
 
       - name: Build GUI (X11)
         run:
