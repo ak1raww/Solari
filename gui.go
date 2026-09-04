@@ -11,10 +11,10 @@ package main
 import (
 	"bytes"
 	_ "embed"
-	"solari/buildinfo"
 	"errors"
 	"image"
 	"image/color"
+	"solari/buildinfo"
 
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/imgui-go"
@@ -655,7 +655,7 @@ func loop() {
 						),
 				),
 				&CondWidget{!IsDevInstall, func() g.Widget {
-					return g.Label("To customise this location, set the environment variable 'EQUICORD_USER_DATA_DIR' and restart me").Wrapped(true)
+					return g.Label("To customise this location, set the environment variable 'SOLARCORD_USER_DATA_DIR' and restart me").Wrapped(true)
 				}, nil},
 				g.Dummy(0, 10),
 				g.Label("Solari Version: "+buildinfo.InstallerTag+" ("+buildinfo.InstallerGitHash+")"+Ternary(IsSelfOutdated, " - OUTDATED", "")),

@@ -9,7 +9,7 @@
         <string>icon.icns</string>
 
         <key>CFBundleIdentifier</key>
-        <string>org.equicord.solari</string>
+        <string>org.equicord.equilotl</string>
 
         <key>NSHighResolutionCapable</key>
         <true/>
