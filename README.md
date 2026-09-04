@@ -4,7 +4,7 @@ Solari is the installer for [Solarcord, a custom fork of Equicord](https://githu
 
 Solari is a fork of [Equilotl](https://github.com/Equicord/Equilotl) (the official Equicord installer), modified specifically for syncing and installing Solarcord while keeping both official updates from Equicord and Solarcord.
 
-![image](https://i.imgur.com/oHN41ss.png)
+![image](https://i.imgur.com/QSjFAkr.png)
 
 ## Usage
 
