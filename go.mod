@@ -24,3 +24,5 @@ require (
 	golang.org/x/image v0.24.0 // indirect
 	gopkg.in/eapache/queue.v1 v1.1.0 // indirect
 )
+
+replace github.com/go-gl/glfw/v3.3/glfw => github.com/go-gl/glfw/v3.3/glfw v0.0.0-20250301202403-da16c1255728
