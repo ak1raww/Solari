@@ -14,6 +14,7 @@ import (
 	"errors"
 	"image"
 	"image/color"
+	"solari/buildinfo"
 
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/imgui-go"

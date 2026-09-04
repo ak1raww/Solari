@@ -24,8 +24,8 @@ var SolarcordDirectory string
 var ErrAlreadyReported = errors.New("already reported")
 
 func init() {
-	if dir := os.Getenv("EQUICORD_USER_DATA_DIR"); dir != "" {
-		Log.Debug("Using EQUICORD_USER_DATA_DIR")
+	if dir := os.Getenv("SOLARCORD_USER_DATA_DIR"); dir != "" {
+		Log.Debug("Using SOLARCORD_USER_DATA_DIR")
 		BaseDir = dir
 	} else if dir = os.Getenv("DISCORD_USER_DATA_DIR"); dir != "" {
 		Log.Debug("Using DISCORD_USER_DATA_DIR/../SolarcordData")
@@ -34,7 +34,7 @@ func init() {
 		Log.Debug("Using UserConfig")
 		BaseDir = appdir.New("Solarcord").UserConfig()
 	}
-	dir := os.Getenv("EQUICORD_DIRECTORY")
+	dir := os.Getenv("SOLARCORD_DIRECTORY")
 	if dir == "" {
 		if !ExistsFile(BaseDir) {
 			BaseDirErr = os.Mkdir(BaseDir, 0755)
@@ -46,10 +46,10 @@ func init() {
 		}
 	}
 	if dir != "" {
-		Log.Debug("Using EQUICORD_DIRECTORY")
+		Log.Debug("Using SOLARCORD_DIRECTORY")
 		SolarcordDirectory = dir
 	} else {
-		SolarcordDirectory = path.Join(BaseDir, "equicord.asar")
+		SolarcordDirectory = path.Join(BaseDir, "solarcord.asar")
 	}
 }
 

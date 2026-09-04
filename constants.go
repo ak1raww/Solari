@@ -7,14 +7,14 @@
 package main
 
 import (
-	"solari/buildinfo"
 	"image/color"
+	"solari/buildinfo"
 )
 
 const ReleaseUrl = "https://api.github.com/repos/ak1raww/Solarcord/releases/latest"
-const ReleaseUrlFallback = "https://equicord.org/releases/equicord"
+const ReleaseUrlFallback = "https://api.github.com/repos/ak1raww/Solarcord/releases/latest"
 const InstallerReleaseUrl = "https://api.github.com/repos/ak1raww/Solari/releases/latest"
-const InstallerReleaseUrlFallback = "https://equicord.org/releases/equilotl"
+const InstallerReleaseUrlFallback = "https://api.github.com/repos/ak1raww/Solari/releases/latest"
 
 var UserAgent = "Solari/" + buildinfo.InstallerGitHash + " (https://github.com/ak1raww/Solari)"
 
