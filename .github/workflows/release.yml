@@ -123,7 +123,7 @@ jobs:
       - name: Recreate vendor and apply Wayland patches
         run: |
           go mod vendor
-          git apply patches/wayland.patch
+          git apply -p1 --ignore-space-change patches/wayland.patch
 
       - name: Build GUI (X11)
         run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -v -tags static -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ github.ref_name }}'" -o Solari-x11-arm64

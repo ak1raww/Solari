@@ -14,7 +14,6 @@ import (
 	"errors"
 	"image"
 	"image/color"
-	"solari/buildinfo"
 
 	g "github.com/AllenDang/giu"
 	"github.com/AllenDang/imgui-go"
@@ -132,7 +131,11 @@ func InstallLatestBuilds() (err error) {
 
 	err = installLatestBuilds()
 	if err != nil {
-		ShowModal("Uh Oh!", "Failed to install the latest Solarcord builds from GitHub:\n"+err.Error())
+		ShowModal(
+			"Uh Oh!",
+			"Failed to install the latest Solarcord builds from GitHub.",
+			err.Error(),
+		)
 	}
 	return
 }
