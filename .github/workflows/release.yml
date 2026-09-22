@@ -4,6 +4,8 @@ name: Release
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     tags:
       - v*
       - 'v*.*.*'
@@ -15,7 +17,43 @@ permissions:
   contents: write
 
 jobs:
+  prepare-release:
+    if: github.event_name != 'push' || github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.release-tag.outputs.tag }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Create release tag
+        id: release-tag
+        shell: bash
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$GITHUB_REF" = "refs/heads/main" ]; then
+            latest=$(git tag --list 'v1.0.*' --sort=-version:refname | head -n 1)
+            if [ -z "$latest" ]; then
+              tag="v1.0.0"
+            else
+              patch=${latest##*.}
+              tag="v1.0.$((patch + 1))"
+            fi
+
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag "$tag" "$GITHUB_SHA"
+            git push origin "$tag"
+          else
+            tag="$GITHUB_REF_NAME"
+          fi
+
+            echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
   build-linux:
+    needs: prepare-release
     runs-on: ubuntu-latest # Go without CGO seems to not depend on glibc, so building on latest should be fine
 
     steps:
@@ -53,29 +91,20 @@ jobs:
         run:
           CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -tags static -ldflags "-s
           -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short
-          HEAD)' -X 'solari/buildinfo.InstallerTag=${{ github.ref_name }}'" -o
+          HEAD)' -X 'solari/buildinfo.InstallerTag=${{ needs.prepare-release.outputs.tag }}'" -o
           Solari-x11
 
       - name: Build GUI (Wayland)
         run:
-          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -tags "static wayland"
-          -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git
-          rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{
-          github.ref_name }}'" -o Solari-wayland
+            CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -tags "static wayland" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ needs.prepare-release.outputs.tag }}'" -o Solari-wayland
 
       - name: Build GUI (Combined)
         run:
-          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -tags "static combined"
-          -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git
-          rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{
-          github.ref_name }}'" -o Solari
+            CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -tags "static combined" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ needs.prepare-release.outputs.tag }}'" -o Solari
 
       - name: Build CLI
         run:
-          CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -tags "cli" -ldflags "-s
-          -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short
-          HEAD)' -X 'solari/buildinfo.InstallerTag=${{ github.ref_name }}'" -o
-          SolariCli-linux
+            CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -tags "cli" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ needs.prepare-release.outputs.tag }}'" -o SolariCli-linux
 
       - name: Update executable
         run: |
@@ -92,6 +121,7 @@ jobs:
             SolariCli-linux
 
   build-linux-arm64:
+    needs: prepare-release
     runs-on: ubuntu-24.04-arm # Native ARM64 runner, the GUI needs ARM64 X11/Wayland/GL libraries
 
     steps:
@@ -126,16 +156,16 @@ jobs:
           git apply -p1 --ignore-space-change patches/wayland.patch
 
       - name: Build GUI (X11)
-        run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -v -tags static -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ github.ref_name }}'" -o Solari-x11-arm64
+        run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -v -tags static -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ needs.prepare-release.outputs.tag }}'" -o Solari-x11-arm64
 
       - name: Build GUI (Wayland)
-        run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -v -tags "static wayland" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ github.ref_name }}'" -o Solari-wayland-arm64
+        run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -v -tags "static wayland" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ needs.prepare-release.outputs.tag }}'" -o Solari-wayland-arm64
 
       - name: Build GUI (Combined)
-        run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -v -tags "static combined" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ github.ref_name }}'" -o Solari-arm64
+        run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -v -tags "static combined" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ needs.prepare-release.outputs.tag }}'" -o Solari-arm64
 
       - name: Build CLI
-        run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -v -tags "cli" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ github.ref_name }}'" -o SolariCli-linux-arm64
+        run: CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -v -tags "cli" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ needs.prepare-release.outputs.tag }}'" -o SolariCli-linux-arm64
 
       - name: Update executable
         run: |
@@ -152,6 +182,7 @@ jobs:
             SolariCli-linux-arm64
 
   build-windows:
+    needs: prepare-release
     runs-on: windows-latest
 
     steps:
@@ -192,12 +223,12 @@ jobs:
         shell: msys2 {0}
         run: |
           go-winres make --product-version "git-tag"
-          CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -tags "static gui" -ldflags "-s -w -H=windowsgui -extldflags=-static -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ github.ref_name }}'" -o Solari.exe
+          CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -tags "static gui" -ldflags "-s -w -H=windowsgui -extldflags=-static -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ needs.prepare-release.outputs.tag }}'" -o Solari.exe
 
       - name: Build CLI
         shell: msys2 {0}
         run: |
-          CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -tags "cli" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ github.ref_name }}'" -o SolariCli.exe
+          CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -tags "cli" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ needs.prepare-release.outputs.tag }}'" -o SolariCli.exe
           cp SolariCli.exe SolariCli-x64.exe # Explicit arch in the name, winget picks installers by it
 
       - name: Upload artifact
@@ -210,6 +241,7 @@ jobs:
             SolariCli-x64.exe
 
   build-windows-arm64:
+    needs: prepare-release
     runs-on: windows-latest # No ARM64 runner needed, the ARM64 binaries are cross-compiled
 
     steps:
@@ -252,12 +284,12 @@ jobs:
         shell: bash
         run: |
           "$(go env GOPATH)/bin/go-winres" make --arch arm64 --product-version "git-tag"
-          CGO_ENABLED=1 GOOS=windows GOARCH=arm64 CC=aarch64-w64-mingw32-clang CXX=aarch64-w64-mingw32-clang++ go build -v -tags "static gui" -ldflags "-s -w -H=windowsgui -extldflags=-static -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ github.ref_name }}'" -o Solari-arm64.exe
+          CGO_ENABLED=1 GOOS=windows GOARCH=arm64 CC=aarch64-w64-mingw32-clang CXX=aarch64-w64-mingw32-clang++ go build -v -tags "static gui" -ldflags "-s -w -H=windowsgui -extldflags=-static -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ needs.prepare-release.outputs.tag }}'" -o Solari-arm64.exe
 
       - name: Build CLI
         shell: bash
         run: |
-          CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -v -tags "cli" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ github.ref_name }}'" -o SolariCli-arm64.exe
+          CGO_ENABLED=0 GOOS=windows GOARCH=arm64 go build -v -tags "cli" -ldflags "-s -w -X 'solari/buildinfo.InstallerGitHash=$(git rev-parse --short HEAD)' -X 'solari/buildinfo.InstallerTag=${{ needs.prepare-release.outputs.tag }}'" -o SolariCli-arm64.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -269,7 +301,7 @@ jobs:
 
   release:
     runs-on: ubuntu-latest
-    needs: [build-linux, build-linux-arm64, build-windows, build-windows-arm64]
+    needs: [prepare-release, build-linux, build-linux-arm64, build-windows, build-windows-arm64]
 
     steps:
       - name: Checkout code
@@ -300,21 +332,22 @@ jobs:
           path: windows
 
       - name: Delete existing release
-        run: gh release delete "${{ github.ref_name }}" --yes || true
+        run: gh release delete "${{ needs.prepare-release.outputs.tag }}" --yes || true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create the release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
-          name: ${{ github.ref_name }}
+          tag_name: ${{ needs.prepare-release.outputs.tag }}
+          name: ${{ needs.prepare-release.outputs.tag }}
           token: ${{ secrets.GITHUB_TOKEN }}
           generate_release_notes: true
-          make_latest: ${{ !contains(github.ref_name, '-') }}
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          make_latest: ${{ !contains(needs.prepare-release.outputs.tag, '-') }}
+          prerelease: ${{ contains(needs.prepare-release.outputs.tag, '-') }}
           draft: false
           body: |
-            This is release ${{ github.ref_name }} of Solari.
+            This is release ${{ needs.prepare-release.outputs.tag }} of Solari.
           files: |
             linux/Solari-x11
             linux/Solari-wayland
